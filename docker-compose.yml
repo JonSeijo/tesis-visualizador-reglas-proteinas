@@ -1,0 +1,36 @@
+version: '2'
+
+services:
+  nginx:
+      image: nginx:latest
+      ports:
+          - "81:81"
+      links:
+          - phpfpm
+      volumes:
+          - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+          #- ./nginx/default:/etc/nginx/sites-available/default
+          #- ./nginx/default:/etc/nginx/sites-enabled/default
+          - ./nginx/default:/etc/nginx/conf.d/default.conf
+          - ./logs/nginx-error.log:/var/log/nginx/error.log
+          - ./logs/nginx-access.log:/var/log/nginx/access.log
+          - .:/app
+  phpfpm:
+      #image: dmstr/php-yii2:7.1-fpm-3.1-alpine-nginx-xdebug
+      build:
+        dockerfile: Dockerfile-fpm-nginx
+        context: .
+      ports:
+          - "9000:9000"
+      volumes:
+          - .:/app
+
+      links:
+          - redis
+
+  redis:
+      image: redis:alpine
+  #mysql:
+  #  image: mariadb
+  #  environment:
+  #    MYSQL_ROOT_PASSWORD: 123
